@@ -355,6 +355,54 @@
     </style>
 </head>
 <body>
+    <!-- INICIO DEL BLOQUE DE CONEXIÓN (Pegar justo después de <body>) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD5zPrdCB4GYZ6O0QORDNZA756YvAW7ztQ",
+            authDomain: "labyrinth-lab-d81da.firebaseapp.com",
+            databaseURL: "https://labyrinth-lab-d81da-default-rtdb.firebaseio.com",
+            projectId: "labyrinth-lab-d81da",
+            storageBucket: "labyrinth-lab-d81da.firebasestorage.app",
+            messagingSenderId: "233198647806",
+            appId: "1:233198647806:web:a5823d53d68a86730268af"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // ¡ESTA ES LA LÍNEA CLAVE! URL en minúsculas para evitar el error 404
+        window.gameUrl = 'https://caanrique.github.io/labyrinth-lab/';
+
+        window.saveMazeToFirebase = async function(mazeData) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomCode = urlParams.get('room');
+            
+            if (!roomCode) {
+                console.log('⚠️ No hay código de sala en la URL');
+                return false;
+            }
+
+            try {
+                await update(ref(db, `rooms/${roomCode}`), {
+                    gridSize: mazeData.gridSize,
+                    grid: mazeData.grid,
+                    goal: mazeData.goal,
+                    startPosition: mazeData.start,
+                    hostDesignReady: true
+                });
+                console.log('✅ Laberinto guardado en Firebase para sala:', roomCode);
+                return true;
+            } catch (error) {
+                console.error('❌ Error guardando en Firebase:', error);
+                return false;
+            }
+        };
+    </script>
+    <!-- FIN DEL BLOQUE DE CONEXIÓN -->
+
 <!-- Firebase SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
