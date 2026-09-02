@@ -374,7 +374,11 @@
         const db = getDatabase(app);
 
         // ¡ESTA ES LA LÍNEA CLAVE! URL en minúsculas para evitar el error 404
-        window.gameUrl = 'https://caanrique.github.io/labyrinth-lab/';
+        // ¡LÍNEA CLAVE MEJORADA! Guarda el código de la sala para regresar a la configuración
+        const urlParamsGen = new URLSearchParams(window.location.search);
+        const roomCodeGen = urlParamsGen.get('room') || '';
+        window.gameUrl = `https://caanrique.github.io/labyrinth-lab/?room=${roomCodeGen}&returning=true`;
+
 
         window.saveMazeToFirebase = async function(mazeData) {
             const urlParams = new URLSearchParams(window.location.search);
