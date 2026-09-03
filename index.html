@@ -3,359 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Laberinto Vectorizer - Prototipo</title>
+    <title>Laberinto Vectorizer</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: Arial, sans-serif; 
-            background: linear-gradient(135deg, #1a1a2e, #16213e); 
-            color: white; 
-            min-height: 100vh; 
-            padding: 20px;
-        }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; min-height: 100vh; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         h1 { text-align: center; margin-bottom: 20px; color: #4CAF50; }
         h2 { text-align: center; margin: 20px 0; color: #4CAF50; }
-        
         .page { display: none; }
         .page.active { display: block; }
-        
-        .instructions { 
-            background: rgba(255,255,255,0.05); 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin: 20px 0;
-            line-height: 1.6;
-        }
-        
-        .warning { 
-            background: rgba(255, 152, 0, 0.2); 
-            border-left: 4px solid #ff9800;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-        
-        .tip {
-            background: rgba(76, 175, 80, 0.2);
-            border-left: 4px solid #4CAF50;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-        
-        .file-input-wrapper {
-            text-align: center;
-            margin: 30px 0;
-        }
-        
-        input[type="file"] {
-            display: none;
-        }
-        
-        .btn {
-            padding: 15px 30px;
-            font-size: 18px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px;
-            transition: background 0.3s;
-        }
-        
+        .instructions { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin: 20px 0; line-height: 1.6; }
+        .warning { background: rgba(255, 152, 0, 0.2); border-left: 4px solid #ff9800; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .tip { background: rgba(76, 175, 80, 0.2); border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .file-input-wrapper { text-align: center; margin: 30px 0; }
+        input[type="file"] { display: none; }
+        .btn { padding: 15px 30px; font-size: 18px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px; transition: background 0.3s; }
         .btn:hover { background: #45a049; }
         .btn:disabled { background: #555; cursor: not-allowed; }
-        
-        .btn-secondary {
-            background: #0066ff;
-        }
-        
+        .btn-secondary { background: #0066ff; }
         .btn-secondary:hover { background: #0052cc; }
-        
-        .btn-back {
-            background: #666;
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-        
+        .btn-game { background: #ff9800; font-size: 20px; padding: 20px 40px; }
+        .btn-game:hover { background: #e68900; }
+        .btn-back { background: #666; padding: 10px 20px; font-size: 16px; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .btn-back:hover { background: #555; }
-        
-        .canvas-container {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-        }
-        
-        #main-canvas {
-            border: 2px solid #4CAF50;
-            max-width: 100%;
-            touch-action: none;
-            cursor: crosshair;
-            background: #333;
-        }
-        
-        .size-selector {
-            text-align: center;
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-        
-        .size-option {
-            display: inline-block;
-            margin: 10px;
-            padding: 15px 25px;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid transparent;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .size-option.selected {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.3);
-        }
-        
-        .size-option:hover {
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .points-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-        
-        .point-btn {
-            padding: 12px 20px;
-            font-size: 15px;
-            border: 3px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: left;
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .point-btn.active-mode {
-            transform: scale(1.03);
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
-            animation: pulse 1.5s infinite;
-            background: rgba(255, 152, 0, 0.3);
-            border-color: #ff9800;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 10px rgba(255,255,255,0.3); }
-            50% { box-shadow: 0 0 25px rgba(255,255,255,0.7); }
-            100% { box-shadow: 0 0 10px rgba(255,255,255,0.3); }
-        }
-        
-        .point-btn small {
-            display: block;
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        
-        .point-status-row {
-            display: flex;
-            justify-content: space-around;
-            margin: 15px 0;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .point-status-item {
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 13px;
-            min-width: 100px;
-            text-align: center;
-        }
-        
-        .point-status-item.placed {
-            background: rgba(76, 175, 80, 0.3);
-            border: 1px solid #4CAF50;
-        }
-        
-        .point-status-item.pending {
-            background: rgba(100, 100, 100, 0.3);
-            border: 1px solid #666;
-        }
-        
-        .correction-mode {
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .tool-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        .tool-btn {
-            padding: 10px 20px;
-            border: 2px solid #555;
-            background: #333;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        .tool-btn.active {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.3);
-        }
-        
-        .json-output {
-            width: 100%;
-            height: 300px;
-            background: #1a1a1a;
-            color: #0f0;
-            border: 2px solid #4CAF50;
-            border-radius: 5px;
-            padding: 15px;
-            font-family: monospace;
-            font-size: 12px;
-            resize: vertical;
-        }
-        
-        .status-message {
-            text-align: center;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        
-        .status-success {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
-        }
-        
-        .status-info {
-            background: rgba(0, 102, 255, 0.2);
-            color: #0066ff;
-        }
-        
-        .status-warning {
-            background: rgba(255, 152, 0, 0.2);
-            color: #ff9800;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .nav-buttons .btn-back {
-            margin: 0;
-        }
-        
-        .nav-buttons .btn {
-            margin: 0;
-        }
-        
-        .marker-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-        
-        .marker-btn {
-            padding: 15px 20px;
-            font-size: 16px;
-            border: 3px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: left;
-            color: white;
-        }
-        
-        .marker-btn-start {
-            background: rgba(0, 255, 0, 0.2);
-            border-color: #00ff00;
-        }
-        
-        .marker-btn-goal {
-            background: rgba(255, 0, 0, 0.2);
-            border-color: #ff0000;
-        }
-        
-        .marker-btn.active-mode {
-            transform: scale(1.03);
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
-            animation: pulse 1.5s infinite;
-        }
-        
-        .marker-btn small {
-            display: block;
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        
-        .marker-status-row {
-            display: flex;
-            justify-content: space-around;
-            margin: 15px 0;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .marker-status-item {
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-size: 14px;
-            min-width: 140px;
-            text-align: center;
-        }
-        
-        .marker-status-item.placed {
-            background: rgba(76, 175, 80, 0.3);
-            border: 1px solid #4CAF50;
-        }
-        
-        .marker-status-item.pending {
-            background: rgba(100, 100, 100, 0.3);
-            border: 1px solid #666;
-        }
-        
-        .clear-markers-btn {
-            background: #666;
-            padding: 8px 15px;
-            font-size: 14px;
-            margin: 10px auto;
-            display: block;
-        }
-        
-        .clear-markers-btn:hover {
-            background: #555;
-        }
+        .canvas-container { text-align: center; margin: 20px 0; position: relative; }
+        #main-canvas, #grid-canvas, #markers-canvas { border: 2px solid #4CAF50; max-width: 100%; touch-action: none; cursor: crosshair; background: #333; }
+        .size-selector { text-align: center; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .size-option { display: inline-block; margin: 10px; padding: 15px 25px; background: rgba(255,255,255,0.1); border: 2px solid transparent; border-radius: 5px; cursor: pointer; transition: all 0.3s; }
+        .size-option.selected { border-color: #4CAF50; background: rgba(76, 175, 80, 0.3); }
+        .points-controls { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .point-btn { padding: 12px 20px; font-size: 15px; border: 3px solid transparent; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-align: left; color: white; background: rgba(255, 255, 255, 0.1); }
+        .point-btn.active-mode { transform: scale(1.03); box-shadow: 0 0 20px rgba(255,255,255,0.5); animation: pulse 1.5s infinite; background: rgba(255, 152, 0, 0.3); border-color: #ff9800; }
+        @keyframes pulse { 0% { box-shadow: 0 0 10px rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 25px rgba(255,255,255,0.7); } 100% { box-shadow: 0 0 10px rgba(255,255,255,0.3); } }
+        .point-btn small { display: block; font-size: 12px; opacity: 0.8; margin-top: 5px; }
+        .point-status-row { display: flex; justify-content: space-around; margin: 15px 0; flex-wrap: wrap; gap: 10px; }
+        .point-status-item { padding: 8px 12px; border-radius: 5px; font-size: 13px; min-width: 100px; text-align: center; }
+        .point-status-item.placed { background: rgba(76, 175, 80, 0.3); border: 1px solid #4CAF50; }
+        .point-status-item.pending { background: rgba(100, 100, 100, 0.3); border: 1px solid #666; }
+        .marker-controls { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .marker-btn { padding: 15px 20px; font-size: 16px; border: 3px solid transparent; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-align: left; color: white; }
+        .marker-btn-start { background: rgba(0, 255, 0, 0.2); border-color: #00ff00; }
+        .marker-btn-goal { background: rgba(255, 0, 0, 0.2); border-color: #ff0000; }
+        .marker-btn.active-mode { transform: scale(1.03); box-shadow: 0 0 20px rgba(255,255,255,0.5); animation: pulse 1.5s infinite; }
+        .marker-btn small { display: block; font-size: 12px; opacity: 0.8; margin-top: 5px; }
+        .marker-status-row { display: flex; justify-content: space-around; margin: 15px 0; flex-wrap: wrap; gap: 10px; }
+        .marker-status-item { padding: 10px 15px; border-radius: 5px; font-size: 14px; min-width: 140px; text-align: center; }
+        .marker-status-item.placed { background: rgba(76, 175, 80, 0.3); border: 1px solid #4CAF50; }
+        .marker-status-item.pending { background: rgba(100, 100, 100, 0.3); border: 1px solid #666; }
+        .json-output { width: 100%; height: 200px; background: #1a1a1a; color: #0f0; border: 2px solid #4CAF50; border-radius: 5px; padding: 15px; font-family: monospace; font-size: 12px; resize: vertical; }
+        .status-message { text-align: center; padding: 15px; margin: 15px 0; border-radius: 5px; font-weight: bold; }
+        .status-success { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+        .status-info { background: rgba(0, 102, 255, 0.2); color: #0066ff; }
+        .status-warning { background: rgba(255, 152, 0, 0.2); color: #ff9800; }
+        .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 10px; }
     </style>
 </head>
 <body>
-    <!-- INICIO DEL BLOQUE DE CONEXIÓN (ÚNICO Y CORREGIDO) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
@@ -373,22 +76,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // ¡ESTA ES LA LÍNEA CLAVE! URL en minúsculas para evitar el error 404
-        // ¡LÍNEA CLAVE MEJORADA! Guarda el código de la sala para regresar a la configuración
-        const urlParamsGen = new URLSearchParams(window.location.search);
-        const roomCodeGen = urlParamsGen.get('room') || '';
-        window.gameUrl = `https://caanrique.github.io/labyrinth-lab/?room=${roomCodeGen}&returning=true`;
+        window.gameUrl = 'https://caanrique.github.io/labyrinth-lab/';
 
-
-        window.saveMazeToFirebase = async function(mazeData) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const roomCode = urlParams.get('room');
-            
-            if (!roomCode) {
-                console.log('⚠️ No hay código de sala en la URL');
-                return false;
-            }
-
+        window.saveMazeToFirebase = async function(mazeData, roomCode) {
+            if (!roomCode) return false;
             try {
                 await update(ref(db, `rooms/${roomCode}`), {
                     gridSize: mazeData.gridSize,
@@ -397,267 +88,119 @@
                     startPosition: mazeData.start,
                     hostDesignReady: true
                 });
-                console.log('✅ Laberinto guardado en Firebase para sala:', roomCode);
                 return true;
             } catch (error) {
-                console.error('❌ Error guardando en Firebase:', error);
+                console.error('Error:', error);
                 return false;
             }
         };
     </script>
-    <!-- FIN DEL BLOQUE DE CONEXIÓN -->
-
 
     <div class="container">
         <h1>🎨 Laberinto Vectorizer</h1>
         
-        <!-- PÁGINA 1: Bienvenida -->
         <div id="page1" class="page active">
             <h2>¡Desarrollemos tu dibujo!</h2>
-            
             <div class="instructions">
-                <p><strong>¡Bienvenido!</strong> Vamos a convertir tu dibujo de laberinto en un juego 3D multijugador.</p>
-                
-                <div class="warning">
-                    <strong>⚠️ Importante:</strong>
-                    <ul style="margin-top: 10px; margin-left: 20px;">
-                        <li>Procura que la imagen esté lo más limpia posible</li>
-                        <li>Evita borrones o manchas innecesarias (al procesarlas, serán entendidas como paredes)</li>
-                        <li>Evita sombras para que no sea confuso</li>
-                        <li>Las líneas deben ser lo más contrastadas posibles para diferenciar el dibujo de la hoja</li>
-                    </ul>
-                </div>
-                
-                <div class="tip">
-                    <strong>💡 Tip para la foto:</strong>
-                    <ul style="margin-top: 10px; margin-left: 20px;">
-                        <li>Toma la foto desde arriba, lo más perpendicular posible al papel</li>
-                        <li>Apóyate de la malla que crea la aplicación de cámara en tu dispositivo</li>
-                        <li>Asegúrate de que se vean bien las 4 esquinas del papel</li>
-                        <li>Esto ayudará a que el procesamiento sea lo más fiel al dibujo original</li>
-                    </ul>
-                </div>
+                <div class="warning"><strong>⚠️ Importante:</strong><ul style="margin-top: 10px; margin-left: 20px;"><li>Imagen limpia</li><li>Sin borrones ni manchas</li><li>Sin sombras</li></ul></div>
+                <div class="tip"><strong>💡 Tip:</strong> Foto perpendicular, 4 esquinas visibles.</div>
             </div>
-            
             <div class="file-input-wrapper">
                 <label for="file-input" class="btn">📁 Seleccionar Imagen</label>
                 <input type="file" id="file-input" accept="image/*">
                 <p id="file-name" style="margin-top: 15px; color: #aaa;"></p>
             </div>
-            
-            <div style="text-align: center;">
-                <button id="btn-start" class="btn" disabled>Empecemos</button>
-            </div>
+            <div style="text-align: center;"><button id="btn-start" class="btn" disabled>Empecemos</button></div>
         </div>
         
-        <!-- PÁGINA 2: Calibración -->
         <div id="page2" class="page">
             <h2>¿Estamos en lo correcto?</h2>
-            
-            <div class="instructions">
-                <p><strong>Ubica los cuatro puntos en los extremos del papel.</strong></p>
-                <p>Será la parte a procesar de la imagen.</p>
-                <p style="color: #ff9800; margin-top: 10px;">⚠️ Ten en cuenta que si hay información adicional fuera de estos puntos, será procesada como parte del laberinto.</p>
-            </div>
-            
-            <div class="canvas-container">
-                <canvas id="main-canvas"></canvas>
-            </div>
-            
+            <div class="instructions"><p><strong>Ubica los cuatro puntos en los extremos del papel.</strong></p></div>
+            <div class="canvas-container"><canvas id="main-canvas"></canvas></div>
             <div class="points-controls">
-                <button id="btn-point-1" class="point-btn">
-                    🔴 Punto 1 (Esquina 1)
-                    <small>Toca este botón y luego toca la imagen para ubicar/reubicar</small>
-                </button>
-                <button id="btn-point-2" class="point-btn">
-                    🔴 Punto 2 (Esquina 2)
-                    <small>Toca este botón y luego toca la imagen para ubicar/reubicar</small>
-                </button>
-                <button id="btn-point-3" class="point-btn">
-                    🔴 Punto 3 (Esquina 3)
-                    <small>Toca este botón y luego toca la imagen para ubicar/reubicar</small>
-                </button>
-                <button id="btn-point-4" class="point-btn">
-                    🔴 Punto 4 (Esquina 4)
-                    <small>Toca este botón y luego toca la imagen para ubicar/reubicar</small>
-                </button>
+                <button id="btn-point-1" class="point-btn">🔴 Punto 1<small>Toca este botón y luego la imagen</small></button>
+                <button id="btn-point-2" class="point-btn">🔴 Punto 2<small>Toca este botón y luego la imagen</small></button>
+                <button id="btn-point-3" class="point-btn">🔴 Punto 3<small>Toca este botón y luego la imagen</small></button>
+                <button id="btn-point-4" class="point-btn">🔴 Punto 4<small>Toca este botón y luego la imagen</small></button>
             </div>
-            
             <div class="point-status-row">
                 <div id="point-1-status" class="point-status-item pending">Punto 1: ❌</div>
                 <div id="point-2-status" class="point-status-item pending">Punto 2: ❌</div>
                 <div id="point-3-status" class="point-status-item pending">Punto 3: ❌</div>
                 <div id="point-4-status" class="point-status-item pending">Punto 4: ❌</div>
             </div>
-            
-            <div class="status-message status-warning" id="points-status">
-                👆 Presiona un botón de arriba para comenzar a ubicar los puntos
-            </div>
-            
+            <div class="status-message status-warning" id="points-status">👆 Presiona un botón para comenzar</div>
             <div class="size-selector">
-                <h3>Selecciona el tamaño de la cuadrícula:</h3>
-                <p style="color: #aaa; margin: 10px 0; font-size: 14px;">
-                    El tamaño determina cuántas celdas tendrá tu laberinto digital.<br>
-                    Un tamaño más grande captura más detalles, pero requiere un dibujo más preciso.
-                </p>
+                <h3>Tamaño de la cuadrícula:</h3>
                 <div class="size-option" data-size="15">15×15<br><small>Básico</small></div>
                 <div class="size-option selected" data-size="21">21×21<br><small>Recomendado</small></div>
                 <div class="size-option" data-size="31">31×31<br><small>Detallado</small></div>
             </div>
-            
             <div class="nav-buttons">
-                <button class="btn btn-back" onclick="goBack(1)">← Atrás</button>
+                <button class="btn-back" onclick="showPage(1)">← Atrás</button>
                 <button id="btn-calibrate" class="btn" disabled>¡Listos!</button>
             </div>
         </div>
         
-        <!-- PÁGINA 3: Revisión y Corrección -->
         <div id="page3" class="page">
             <h2>¿Necesitas corregir algo?</h2>
-            
-            <div class="instructions">
-                <p>Revisa la cuadrícula generada. Si hay errores (manchas detectadas como paredes, caminos bloqueados, etc.), puedes corregirlos ahora.</p>
-            </div>
-            
-            <div class="canvas-container">
-                <canvas id="grid-canvas"></canvas>
-            </div>
-            
-            <div class="correction-mode">
-                <div class="tool-selector">
-                    <button class="tool-btn active" data-tool="toggle">🔄 Alternar (Blanco/Negro)</button>
-                </div>
-                <p style="color: #aaa; margin: 10px 0; font-size: 14px;">
-                    Toca cualquier celda para cambiarla entre pared (negro) y camino (blanco)
-                </p>
-            </div>
-            
+            <div class="instructions"><p>Toca cualquier celda para cambiarla entre pared y camino.</p></div>
+            <div class="canvas-container"><canvas id="grid-canvas"></canvas></div>
             <div class="nav-buttons">
-                <button class="btn btn-back" onclick="goBack(2)">← Atrás</button>
-                <div>
-                    <button id="btn-save-corrections" class="btn">Guardar Cambios</button>
-                    <button id="btn-no-corrections" class="btn btn-secondary">No, continuemos</button>
-                </div>
+                <button class="btn-back" onclick="showPage(2)">← Atrás</button>
+                <button class="btn" onclick="showPage(4)">Continuar →</button>
             </div>
         </div>
         
-        <!-- PÁGINA 4: Inicio y Meta -->
         <div id="page4" class="page">
             <h2>Marca el Inicio y la Meta</h2>
-            
-            <div class="instructions">
-                <p>Ahora define dónde comenzarán los jugadores y dónde está la meta.</p>
-                <p style="margin-top: 10px; color: #ff9800;">
-                    💡 Puedes cambiar la ubicación cuantas veces quieras presionando el botón correspondiente y tocando una nueva celda.
-                </p>
-            </div>
-            
+            <div class="instructions"><p>Define dónde comenzará el anfitrión y dónde está la meta.</p></div>
             <div class="marker-controls">
-                <button id="btn-place-start" class="marker-btn marker-btn-start">
-                    📍 Colocar / Mover el INICIO
-                    <small>Toca este botón y luego toca una celda blanca en el mapa</small>
-                </button>
-                <button id="btn-place-goal" class="marker-btn marker-btn-goal">
-                    🎯 Colocar / Mover la META
-                    <small>Toca este botón y luego toca una celda blanca en el mapa</small>
-                </button>
+                <button id="btn-place-start" class="marker-btn marker-btn-start">📍 Colocar / Mover el INICIO<small>Toca este botón y luego una celda blanca</small></button>
+                <button id="btn-place-goal" class="marker-btn marker-btn-goal">🎯 Colocar / Mover la META<small>Toca este botón y luego una celda blanca</small></button>
             </div>
-            
             <div class="marker-status-row">
-                <div id="start-status" class="marker-status-item pending">
-                    📍 Inicio: Sin colocar
-                </div>
-                <div id="goal-status" class="marker-status-item pending">
-                    🎯 Meta: Sin colocar
-                </div>
+                <div id="start-status" class="marker-status-item pending">📍 Inicio: Sin colocar</div>
+                <div id="goal-status" class="marker-status-item pending">🎯 Meta: Sin colocar</div>
             </div>
-            
-            <button id="btn-clear-markers" class="clear-markers-btn" style="display: none;">
-                🗑️ Quitar todos los marcadores
-            </button>
-            
-            <div class="canvas-container">
-                <canvas id="markers-canvas"></canvas>
-            </div>
-            
-            <div class="status-message status-warning" id="markers-status">
-                👆 Primero presiona un botón de arriba para activar el modo de colocación
-            </div>
-            
+            <div class="canvas-container"><canvas id="markers-canvas"></canvas></div>
+            <div class="status-message status-warning" id="markers-status">👆 Presiona un botón para comenzar</div>
             <div class="nav-buttons">
-                <button class="btn btn-back" onclick="goBack(3)">← Atrás</button>
+                <button class="btn-back" onclick="showPage(3)">← Atrás</button>
                 <button id="btn-generate-json" class="btn" disabled>Generar JSON</button>
             </div>
         </div>
         
-        <!-- PÁGINA 5: Resultado -->
         <div id="page5" class="page">
             <h2>✅ ¡Laberinto Vectorizado!</h2>
-            
-            <div class="status-message status-success">
-                El JSON ha sido generado y está listo para ser descargado.
-            </div>
-            
+            <div class="status-message status-success">El JSON ha sido generado exitosamente.</div>
             <h3 style="margin: 20px 0 10px 0;">JSON Generado:</h3>
             <textarea id="json-output" class="json-output" readonly></textarea>
-            
             <div style="text-align: center; margin-top: 20px;">
                 <button id="btn-download-json" class="btn">💾 Descargar Archivo JSON</button>
                 <button id="btn-copy-json" class="btn btn-secondary">📋 Copiar al Portapapeles</button>
+                <button id="btn-back-to-game" class="btn btn-game">🎮 Volver al Juego</button>
                 <button id="btn-restart" class="btn btn-secondary">🔄 Empezar de Nuevo</button>
-            </div>
-            
-            <div class="nav-buttons">
-                <button class="btn btn-back" onclick="goBack(4)">← Atrás</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ============================================================
-        // ESTADO GLOBAL
-        // ============================================================
-        let originalImage = null;
-        let resizedImage = null;
+        let originalImage = null, resizedImage = null;
         let cornerPoints = [null, null, null, null];
-        let gridSize = 21;
-        let grid = [];
-        let startCell = null;
-        let goalCell = null;
-        let currentTool = 'toggle';
-        let activeMarkerMode = null;
-        let activePointMode = null;
-        
+        let gridSize = 21, grid = [], startCell = null, goalCell = null;
+        let activeMarkerMode = null, activePointMode = null;
         const MAX_DIMENSION = 1200;
-        
-        // ============================================================
-        // NAVEGACIÓN ENTRE PÁGINAS
-        // ============================================================
+
         function showPage(pageNum) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page${pageNum}`).classList.add('active');
+            window.scrollTo(0, 0);
+            if (pageNum === 2) { updatePointButtonsUI(); drawImageWithPoints(); }
+            else if (pageNum === 3) drawGrid();
+            else if (pageNum === 4) { activeMarkerMode = null; updateMarkerButtonsUI(); drawMarkers(); }
         }
-        
-        function goBack(targetPage) {
-            showPage(targetPage);
-            
-            if (targetPage === 2) {
-                updatePointButtonsUI();
-                drawImageWithPoints();
-            } else if (targetPage === 3) {
-                drawGrid();
-            } else if (targetPage === 4) {
-                activeMarkerMode = null;
-                updateMarkerButtonsUI();
-                drawMarkers();
-            } else if (targetPage === 5) {
-                // El JSON ya está generado
-            }
-        }
-        
-        // ============================================================
-        // PÁGINA 1: CARGA DE IMAGEN
-        // ============================================================
+
         const fileInput = document.getElementById('file-input');
         const fileName = document.getElementById('file-name');
         const btnStart = document.getElementById('btn-start');
@@ -665,160 +208,72 @@
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            
             fileName.textContent = `📄 ${file.name}`;
-            
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
-                img.onload = () => {
-                    originalImage = img;
-                    btnStart.disabled = false;
-                };
+                img.onload = () => { originalImage = img; btnStart.disabled = false; };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
         
         btnStart.addEventListener('click', () => {
-            resizeImage();
-            showPage(2);
-            updatePointButtonsUI();
-            drawImageWithPoints();
-        });
-        
-        // ============================================================
-        // REDIMENSIONAMIENTO AUTOMÁTICO
-        // ============================================================
-        function resizeImage() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
-            let width = originalImage.width;
-            let height = originalImage.height;
-            
+            let width = originalImage.width, height = originalImage.height;
             if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
                 const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-                width = Math.floor(width * ratio);
-                height = Math.floor(height * ratio);
+                width = Math.floor(width * ratio); height = Math.floor(height * ratio);
             }
-            
-            canvas.width = width;
-            canvas.height = height;
+            canvas.width = width; canvas.height = height;
             ctx.drawImage(originalImage, 0, 0, width, height);
-            
             resizedImage = canvas;
-        }
-        
-        // ============================================================
-        // PÁGINA 2: CALIBRACIÓN DE ESQUINAS
-        // ============================================================
+            showPage(2);
+        });
+
         const mainCanvas = document.getElementById('main-canvas');
         const mainCtx = mainCanvas.getContext('2d');
         const btnCalibrate = document.getElementById('btn-calibrate');
         const pointsStatus = document.getElementById('points-status');
-        
-        const btnPoint1 = document.getElementById('btn-point-1');
-        const btnPoint2 = document.getElementById('btn-point-2');
-        const btnPoint3 = document.getElementById('btn-point-3');
-        const btnPoint4 = document.getElementById('btn-point-4');
-        
-        const point1Status = document.getElementById('point-1-status');
-        const point2Status = document.getElementById('point-2-status');
-        const point3Status = document.getElementById('point-3-status');
-        const point4Status = document.getElementById('point-4-status');
-        
+        const btns = [document.getElementById('btn-point-1'), document.getElementById('btn-point-2'), document.getElementById('btn-point-3'), document.getElementById('btn-point-4')];
+        const statuses = [document.getElementById('point-1-status'), document.getElementById('point-2-status'), document.getElementById('point-3-status'), document.getElementById('point-4-status')];
+
         function updatePointButtonsUI() {
             const allPlaced = cornerPoints.every(p => p !== null);
             btnCalibrate.disabled = !allPlaced;
-            
-            btnPoint1.classList.toggle('active-mode', activePointMode === 0);
-            btnPoint2.classList.toggle('active-mode', activePointMode === 1);
-            btnPoint3.classList.toggle('active-mode', activePointMode === 2);
-            btnPoint4.classList.toggle('active-mode', activePointMode === 3);
-            
-            for (let i = 0; i < 4; i++) {
-                const btn = [btnPoint1, btnPoint2, btnPoint3, btnPoint4][i];
-                if (cornerPoints[i]) {
-                    btn.innerHTML = `🔴 Punto ${i + 1} - Reubicar (actual: ${Math.round(cornerPoints[i].x)}, ${Math.round(cornerPoints[i].y)})<small>Toca este botón y luego toca la imagen para reubicar</small>`;
-                } else {
-                    btn.innerHTML = `🔴 Punto ${i + 1} - Colocar<small>Toca este botón y luego toca la imagen para ubicar</small>`;
-                }
-            }
-            
-            for (let i = 0; i < 4; i++) {
-                const status = [point1Status, point2Status, point3Status, point4Status][i];
-                if (cornerPoints[i]) {
-                    status.className = 'point-status-item placed';
-                    status.textContent = `Punto ${i + 1}: ✅`;
-                } else {
-                    status.className = 'point-status-item pending';
-                    status.textContent = `Punto ${i + 1}: ❌`;
-                }
-            }
-            
-            if (activePointMode !== null) {
-                pointsStatus.textContent = `🔴 Modo Punto ${activePointMode + 1} activo: toca la imagen para ${cornerPoints[activePointMode] ? 'reubicarlo' : 'colocarlo'}`;
-                pointsStatus.className = 'status-message status-info';
-            } else if (allPlaced) {
-                pointsStatus.textContent = '✅ ¡Todos los puntos colocados! Puedes reubicarlos o presionar "¡Listos!"';
-                pointsStatus.className = 'status-message status-success';
-            } else {
-                pointsStatus.textContent = '👆 Presiona un botón de arriba para comenzar a ubicar los puntos';
-                pointsStatus.className = 'status-message status-warning';
-            }
+            btns.forEach((btn, i) => {
+                btn.classList.toggle('active-mode', activePointMode === i);
+                btn.innerHTML = cornerPoints[i] ? `🔴 Punto ${i+1} - Reubicar<small>Toca para reubicar</small>` : `🔴 Punto ${i+1} - Colocar<small>Toca este botón y luego la imagen</small>`;
+            });
+            statuses.forEach((status, i) => {
+                status.className = `point-status-item ${cornerPoints[i] ? 'placed' : 'pending'}`;
+                status.textContent = `Punto ${i+1}: ${cornerPoints[i] ? '✅' : '❌'}`;
+            });
+            if (activePointMode !== null) { pointsStatus.textContent = `🔴 Modo Punto ${activePointMode+1} activo: toca la imagen`; pointsStatus.className = 'status-message status-info'; }
+            else if (allPlaced) { pointsStatus.textContent = '✅ ¡Todos los puntos colocados!'; pointsStatus.className = 'status-message status-success'; }
+            else { pointsStatus.textContent = '👆 Presiona un botón para comenzar'; pointsStatus.className = 'status-message status-warning'; }
         }
-        
-        btnPoint1.addEventListener('click', () => {
-            activePointMode = (activePointMode === 0) ? null : 0;
-            updatePointButtonsUI();
-        });
-        
-        btnPoint2.addEventListener('click', () => {
-            activePointMode = (activePointMode === 1) ? null : 1;
-            updatePointButtonsUI();
-        });
-        
-        btnPoint3.addEventListener('click', () => {
-            activePointMode = (activePointMode === 2) ? null : 2;
-            updatePointButtonsUI();
-        });
-        
-        btnPoint4.addEventListener('click', () => {
-            activePointMode = (activePointMode === 3) ? null : 3;
-            updatePointButtonsUI();
-        });
-        
+
+        btns.forEach((btn, i) => btn.addEventListener('click', () => { activePointMode = (activePointMode === i) ? null : i; updatePointButtonsUI(); }));
+
         function drawImageWithPoints() {
-            mainCanvas.width = resizedImage.width;
-            mainCanvas.height = resizedImage.height;
+            mainCanvas.width = resizedImage.width; mainCanvas.height = resizedImage.height;
             mainCtx.drawImage(resizedImage, 0, 0);
-            
             cornerPoints.forEach((point, idx) => {
                 if (point) {
-                    mainCtx.fillStyle = '#ff0000';
-                    mainCtx.beginPath();
-                    mainCtx.arc(point.x, point.y, 12, 0, Math.PI * 2);
-                    mainCtx.fill();
-                    mainCtx.strokeStyle = 'white';
-                    mainCtx.lineWidth = 2;
-                    mainCtx.stroke();
-                    mainCtx.fillStyle = 'white';
-                    mainCtx.font = 'bold 16px Arial';
-                    mainCtx.textAlign = 'center';
-                    mainCtx.textBaseline = 'middle';
+                    mainCtx.fillStyle = '#ff0000'; mainCtx.beginPath(); mainCtx.arc(point.x, point.y, 12, 0, Math.PI * 2); mainCtx.fill();
+                    mainCtx.strokeStyle = 'white'; mainCtx.lineWidth = 2; mainCtx.stroke();
+                    mainCtx.fillStyle = 'white'; mainCtx.font = 'bold 16px Arial'; mainCtx.textAlign = 'center'; mainCtx.textBaseline = 'middle';
                     mainCtx.fillText(idx + 1, point.x, point.y);
                 }
             });
         }
-        
+
         function handleCanvasTap(clientX, clientY) {
             const rect = mainCanvas.getBoundingClientRect();
-            const scaleX = mainCanvas.width / rect.width;
-            const scaleY = mainCanvas.height / rect.height;
-            const x = (clientX - rect.left) * scaleX;
-            const y = (clientY - rect.top) * scaleY;
-            
+            const x = (clientX - rect.left) * (mainCanvas.width / rect.width);
+            const y = (clientY - rect.top) * (mainCanvas.height / rect.height);
             if (activePointMode !== null) {
                 cornerPoints[activePointMode] = { x, y };
                 activePointMode = null;
@@ -826,18 +281,9 @@
                 drawImageWithPoints();
             }
         }
-        
-        mainCanvas.addEventListener('click', (e) => {
-            handleCanvasTap(e.clientX, e.clientY);
-        });
-        
-        mainCanvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            handleCanvasTap(touch.clientX, touch.clientY);
-        });
-        
-        // Selector de tamaño
+        mainCanvas.addEventListener('click', (e) => handleCanvasTap(e.clientX, e.clientY));
+        mainCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleCanvasTap(e.touches[0].clientX, e.touches[0].clientY); });
+
         document.querySelectorAll('.size-option').forEach(option => {
             option.addEventListener('click', () => {
                 document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
@@ -845,182 +291,87 @@
                 gridSize = parseInt(option.dataset.size);
             });
         });
-        
+
         btnCalibrate.addEventListener('click', () => {
-            processImage();
-            showPage(3);
-            drawGrid();
-        });
-        
-        // ============================================================
-        // PROCESAMIENTO DE IMAGEN
-        // ============================================================
-        function processImage() {
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-            
-            tempCanvas.width = resizedImage.width;
-            tempCanvas.height = resizedImage.height;
-            
-            const minX = Math.min(...cornerPoints.map(p => p.x));
-            const maxX = Math.max(...cornerPoints.map(p => p.x));
-            const minY = Math.min(...cornerPoints.map(p => p.y));
-            const maxY = Math.max(...cornerPoints.map(p => p.y));
-            
-            const width = maxX - minX;
-            const height = maxY - minY;
-            
-            tempCtx.drawImage(
-                resizedImage,
-                minX, minY, width, height,
-                0, 0, width, height
-            );
+            const minX = Math.min(...cornerPoints.map(p => p.x)), maxX = Math.max(...cornerPoints.map(p => p.x));
+            const minY = Math.min(...cornerPoints.map(p => p.y)), maxY = Math.max(...cornerPoints.map(p => p.y));
+            const width = maxX - minX, height = maxY - minY;
+            tempCtx.drawImage(resizedImage, minX, minY, width, height, 0, 0, width, height);
             
             const imageData = tempCtx.getImageData(0, 0, width, height);
             const data = imageData.data;
-            
             for (let i = 0; i < data.length; i += 4) {
                 const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-                data[i] = data[i + 1] = data[i + 2] = gray;
+                data[i] = data[i + 1] = data[i + 2] = gray < 85 ? 0 : 255;
             }
-            
-            const threshold = 85;
-            for (let i = 0; i < data.length; i += 4) {
-                const value = data[i] < threshold ? 0 : 255;
-                data[i] = data[i + 1] = data[i + 2] = value;
-            }
-            
             tempCtx.putImageData(imageData, 0, 0);
             
             grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
-            
-            const cellWidth = width / gridSize;
-            const cellHeight = height / gridSize;
-            
+            const cellWidth = width / gridSize, cellHeight = height / gridSize;
             for (let row = 0; row < gridSize; row++) {
                 for (let col = 0; col < gridSize; col++) {
-                    const startX = Math.floor(col * cellWidth);
-                    const startY = Math.floor(row * cellHeight);
-                    const endX = Math.floor((col + 1) * cellWidth);
-                    const endY = Math.floor((row + 1) * cellHeight);
-                    
-                    let blackPixels = 0;
-                    let totalPixels = 0;
-                    
-                    const cellData = tempCtx.getImageData(startX, startY, endX - startX, endY - startY);
-                    
-                    for (let i = 0; i < cellData.data.length; i += 4) {
-                        if (cellData.data[i] === 0) {
-                            blackPixels++;
-                        }
-                        totalPixels++;
-                    }
-                    
+                    let blackPixels = 0, totalPixels = 0;
+                    const cellData = tempCtx.getImageData(Math.floor(col * cellWidth), Math.floor(row * cellHeight), Math.floor(cellWidth), Math.floor(cellHeight));
+                    for (let i = 0; i < cellData.data.length; i += 4) { if (cellData.data[i] === 0) blackPixels++; totalPixels++; }
                     grid[row][col] = (blackPixels / totalPixels) > 0.08 ? 1 : 0;
                 }
             }
-        }
-        
-        // ============================================================
-        // PÁGINA 3: REVISIÓN Y CORRECCIÓN
-        // ============================================================
+            showPage(3);
+        });
+
         const gridCanvas = document.getElementById('grid-canvas');
         const gridCtx = gridCanvas.getContext('2d');
-        
         function drawGrid() {
-            const canvasSize = 500;
-            gridCanvas.width = canvasSize;
-            gridCanvas.height = canvasSize;
-            
+            const canvasSize = 500; gridCanvas.width = canvasSize; gridCanvas.height = canvasSize;
             const cellSize = canvasSize / gridSize;
-            
             for (let row = 0; row < gridSize; row++) {
                 for (let col = 0; col < gridSize; col++) {
                     gridCtx.fillStyle = grid[row][col] === 1 ? '#000000' : '#ffffff';
                     gridCtx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
                 }
             }
-            
-            gridCtx.strokeStyle = 'rgba(100, 100, 100, 0.3)';
-            gridCtx.lineWidth = 1;
-            
+            gridCtx.strokeStyle = 'rgba(100, 100, 100, 0.3)'; gridCtx.lineWidth = 1;
             for (let i = 0; i <= gridSize; i++) {
-                gridCtx.beginPath();
-                gridCtx.moveTo(i * cellSize, 0);
-                gridCtx.lineTo(i * cellSize, canvasSize);
-                gridCtx.stroke();
-                
-                gridCtx.beginPath();
-                gridCtx.moveTo(0, i * cellSize);
-                gridCtx.lineTo(canvasSize, i * cellSize);
-                gridCtx.stroke();
+                gridCtx.beginPath(); gridCtx.moveTo(i * cellSize, 0); gridCtx.lineTo(i * cellSize, canvasSize); gridCtx.stroke();
+                gridCtx.beginPath(); gridCtx.moveTo(0, i * cellSize); gridCtx.lineTo(canvasSize, i * cellSize); gridCtx.stroke();
             }
         }
-        
         function handleGridTap(clientX, clientY) {
             const rect = gridCanvas.getBoundingClientRect();
-            const scaleX = gridCanvas.width / rect.width;
-            const scaleY = gridCanvas.height / rect.height;
-            const x = (clientX - rect.left) * scaleX;
-            const y = (clientY - rect.top) * scaleY;
-            
-            const col = Math.floor(x / (gridCanvas.width / gridSize));
-            const row = Math.floor(y / (gridCanvas.height / gridSize));
-            
-            if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
-                grid[row][col] = grid[row][col] === 1 ? 0 : 1;
-                drawGrid();
-            }
+            const col = Math.floor(((clientX - rect.left) * (gridCanvas.width / rect.width)) / (gridCanvas.width / gridSize));
+            const row = Math.floor(((clientY - rect.top) * (gridCanvas.height / rect.height)) / (gridCanvas.height / gridSize));
+            if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) { grid[row][col] = grid[row][col] === 1 ? 0 : 1; drawGrid(); }
         }
-        
-        gridCanvas.addEventListener('click', (e) => {
-            handleGridTap(e.clientX, e.clientY);
-        });
-        
-        gridCanvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            handleGridTap(touch.clientX, touch.clientY);
-        });
-        
-        document.getElementById('btn-save-corrections').addEventListener('click', () => {
-            showPage(4);
-            drawMarkers();
-        });
-        
-        document.getElementById('btn-no-corrections').addEventListener('click', () => {
-            showPage(4);
-            drawMarkers();
-        });
-        
-        // ============================================================
-        // PÁGINA 4: INICIO Y META
-        // ============================================================
+        gridCanvas.addEventListener('click', (e) => handleGridTap(e.clientX, e.clientY));
+        gridCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleGridTap(e.touches[0].clientX, e.touches[0].clientY); });
+
         const markersCanvas = document.getElementById('markers-canvas');
         const markersCtx = markersCanvas.getContext('2d');
         const markersStatus = document.getElementById('markers-status');
         const btnGenerateJson = document.getElementById('btn-generate-json');
         const btnPlaceStart = document.getElementById('btn-place-start');
         const btnPlaceGoal = document.getElementById('btn-place-goal');
-        const btnClearMarkers = document.getElementById('btn-clear-markers');
-        const startStatus = document.getElementById('start-status');
-        const goalStatus = document.getElementById('goal-status');
-        
+
         function updateMarkerButtonsUI() {
             btnPlaceStart.classList.toggle('active-mode', activeMarkerMode === 'start');
             btnPlaceGoal.classList.toggle('active-mode', activeMarkerMode === 'goal');
             
             if (startCell) {
-                btnPlaceStart.innerHTML = `📍 Mover el INICIO (actual: fila ${startCell.row}, col ${startCell.col})<small>Toca este botón y luego toca una nueva celda blanca</small>`;
+                btnPlaceStart.innerHTML = `📍 Mover INICIO (${startCell.col}, ${startCell.row})<small>Toca para reubicar</small>`;
             } else {
-                btnPlaceStart.innerHTML = `📍 Colocar el INICIO<small>Toca este botón y luego toca una celda blanca en el mapa</small>`;
+                btnPlaceStart.innerHTML = `📍 Colocar INICIO<small>Toca este botón y luego una celda blanca</small>`;
             }
             
             if (goalCell) {
-                btnPlaceGoal.innerHTML = `🎯 Mover la META (actual: fila ${goalCell.row}, col ${goalCell.col})<small>Toca este botón y luego toca una nueva celda blanca</small>`;
+                btnPlaceGoal.innerHTML = `🎯 Mover META (${goalCell.col}, ${goalCell.row})<small>Toca para reubicar</small>`;
             } else {
-                btnPlaceGoal.innerHTML = `🎯 Colocar la META<small>Toca este botón y luego toca una celda blanca en el mapa</small>`;
+                btnPlaceGoal.innerHTML = `🎯 Colocar META<small>Toca este botón y luego una celda blanca</small>`;
             }
+            
+            const startStatus = document.getElementById('start-status');
+            const goalStatus = document.getElementById('goal-status');
             
             if (startCell) {
                 startStatus.className = 'marker-status-item placed';
@@ -1038,22 +389,21 @@
                 goalStatus.textContent = '🎯 Meta: Sin colocar';
             }
             
-            btnClearMarkers.style.display = (startCell || goalCell) ? 'block' : 'none';
             btnGenerateJson.disabled = !(startCell && goalCell);
             
             if (!activeMarkerMode) {
                 if (startCell && goalCell) {
-                    markersStatus.textContent = '✅ ¡Ambos marcadores colocados! Puedes moverlos o generar el JSON.';
+                    markersStatus.textContent = '✅ ¡Listo! Presiona Generar JSON';
                     markersStatus.className = 'status-message status-success';
                 } else {
-                    markersStatus.textContent = '👆 Presiona un botón de arriba para comenzar a colocar marcadores';
+                    markersStatus.textContent = '👆 Presiona un botón para comenzar';
                     markersStatus.className = 'status-message status-warning';
                 }
             } else if (activeMarkerMode === 'start') {
-                markersStatus.textContent = '📍 Modo INICIO activo: toca una celda blanca para ' + (startCell ? 'moverlo' : 'colocarlo');
+                markersStatus.textContent = '📍 Toca una celda blanca para el INICIO';
                 markersStatus.className = 'status-message status-info';
             } else if (activeMarkerMode === 'goal') {
-                markersStatus.textContent = '🎯 Modo META activo: toca una celda blanca para ' + (goalCell ? 'moverla' : 'colocarla');
+                markersStatus.textContent = '🎯 Toca una celda blanca para la META';
                 markersStatus.className = 'status-message status-info';
             }
         }
@@ -1068,21 +418,10 @@
             updateMarkerButtonsUI();
         });
         
-        btnClearMarkers.addEventListener('click', () => {
-            if (confirm('¿Seguro que quieres quitar ambos marcadores?')) {
-                startCell = null;
-                goalCell = null;
-                activeMarkerMode = null;
-                updateMarkerButtonsUI();
-                drawMarkers();
-            }
-        });
-        
         function drawMarkers() {
             const canvasSize = 500;
             markersCanvas.width = canvasSize;
             markersCanvas.height = canvasSize;
-            
             const cellSize = canvasSize / gridSize;
             
             for (let row = 0; row < gridSize; row++) {
@@ -1095,13 +434,7 @@
             if (startCell) {
                 markersCtx.fillStyle = '#00ff00';
                 markersCtx.beginPath();
-                markersCtx.arc(
-                    startCell.col * cellSize + cellSize / 2,
-                    startCell.row * cellSize + cellSize / 2,
-                    cellSize * 0.35,
-                    0,
-                    Math.PI * 2
-                );
+                markersCtx.arc(startCell.col * cellSize + cellSize / 2, startCell.row * cellSize + cellSize / 2, cellSize * 0.35, 0, Math.PI * 2);
                 markersCtx.fill();
                 markersCtx.strokeStyle = 'white';
                 markersCtx.lineWidth = 2;
@@ -1116,13 +449,7 @@
             if (goalCell) {
                 markersCtx.fillStyle = '#ff0000';
                 markersCtx.beginPath();
-                markersCtx.arc(
-                    goalCell.col * cellSize + cellSize / 2,
-                    goalCell.row * cellSize + cellSize / 2,
-                    cellSize * 0.35,
-                    0,
-                    Math.PI * 2
-                );
+                markersCtx.arc(goalCell.col * cellSize + cellSize / 2, goalCell.row * cellSize + cellSize / 2, cellSize * 0.35, 0, Math.PI * 2);
                 markersCtx.fill();
                 markersCtx.strokeStyle = 'white';
                 markersCtx.lineWidth = 2;
@@ -1136,13 +463,11 @@
             
             markersCtx.strokeStyle = 'rgba(100, 100, 100, 0.3)';
             markersCtx.lineWidth = 1;
-            
             for (let i = 0; i <= gridSize; i++) {
                 markersCtx.beginPath();
                 markersCtx.moveTo(i * cellSize, 0);
                 markersCtx.lineTo(i * cellSize, canvasSize);
                 markersCtx.stroke();
-                
                 markersCtx.beginPath();
                 markersCtx.moveTo(0, i * cellSize);
                 markersCtx.lineTo(canvasSize, i * cellSize);
@@ -1150,29 +475,26 @@
             }
         }
         
-        function handleMarkerClick(e) {
+        function handleMarkerClick(clientX, clientY) {
             const rect = markersCanvas.getBoundingClientRect();
             const scaleX = markersCanvas.width / rect.width;
             const scaleY = markersCanvas.height / rect.height;
-            const x = (e.clientX - rect.left) * scaleX;
-            const y = (e.clientY - rect.top) * scaleY;
-            
+            const x = (clientX - rect.left) * scaleX;
+            const y = (clientY - rect.top) * scaleY;
             const col = Math.floor(x / (markersCanvas.width / gridSize));
             const row = Math.floor(y / (markersCanvas.height / gridSize));
             
             if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
                 if (!activeMarkerMode) {
-                    markersStatus.textContent = '⚠️ Primero presiona el botón "Colocar INICIO" o "Colocar META"';
+                    markersStatus.textContent = '⚠️ Presiona un botón primero';
                     markersStatus.className = 'status-message status-warning';
                     return;
                 }
-                
                 if (grid[row][col] === 1) {
-                    markersStatus.textContent = '⚠️ No puedes colocar un marcador en una pared. Elige una celda blanca.';
+                    markersStatus.textContent = '⚠️ No puedes colocar en una pared';
                     markersStatus.className = 'status-message status-warning';
                     return;
                 }
-                
                 if (activeMarkerMode === 'start') {
                     startCell = { row, col };
                     activeMarkerMode = null;
@@ -1180,88 +502,50 @@
                     goalCell = { row, col };
                     activeMarkerMode = null;
                 }
-                
                 updateMarkerButtonsUI();
                 drawMarkers();
             }
         }
         
-        markersCanvas.addEventListener('click', handleMarkerClick);
-        
+        markersCanvas.addEventListener('click', (e) => handleMarkerClick(e.clientX, e.clientY));
         markersCanvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
-            handleMarkerClick({
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
+            handleMarkerClick(touch.clientX, touch.clientY);
         });
         
         btnGenerateJson.addEventListener('click', () => {
             generateJSON();
             showPage(5);
         });
-        
-        // ============================================================
-        // PÁGINA 5: RESULTADO
-        // ============================================================
-async function generateJSON() {
-    const json = {
-        gridSize: gridSize,
-        grid: grid,
-        start: {
-            x: startCell.col,
-            y: startCell.row
-        },
-        goal: {
-            x: goalCell.col,
-            y: goalCell.row
-        }
-    };
-    
-    const jsonString = JSON.stringify(json, null, 2);
-    document.getElementById('json-output').value = jsonString;
-    window.generatedMazeJSON = json;
-    
-    // NUEVO: Intentar guardar en Firebase automáticamente
-    if (window.saveMazeToFirebase) {
-        const saved = await window.saveMazeToFirebase(json);
-        if (saved) {
-            // Mostrar mensaje de éxito
-            const successMsg = document.createElement('div');
-            successMsg.style.cssText = 'background: rgba(76, 175, 80, 0.3); color: #4CAF50; padding: 15px; border-radius: 5px; margin: 15px 0; text-align: center; font-weight: bold;';
-            successMsg.innerHTML = '✅ ¡Laberinto enviado al juego! Ya puedes regresar.';
-            
-            const statusMessage = document.querySelector('#page5 .status-success');
-            if (statusMessage) {
-                statusMessage.parentNode.insertBefore(successMsg, statusMessage.nextSibling);
-            }
-            
-            // Opcional: botón para volver al juego
-            if (window.gameUrl) {
-                setTimeout(() => {
-                    if (confirm('✅ Laberinto enviado correctamente.\n\n¿Quieres regresar al juego ahora?')) {
-                        window.location.href = window.gameUrl;
-                    }
-                }, 1500);
-            }
-        }
-    }
-}
 
+        async function generateJSON() {
+            const json = {
+                gridSize: gridSize,
+                grid: grid,
+                start: { x: startCell.col, y: startCell.row },
+                goal: { x: goalCell.col, y: goalCell.row }
+            };
+            
+            const jsonString = JSON.stringify(json, null, 2);
+            document.getElementById('json-output').value = jsonString;
+            window.generatedMazeJSON = json;
+            
+            if (window.saveMazeToFirebase) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const roomCode = urlParams.get('room');
+                if (roomCode) {
+                    await window.saveMazeToFirebase(json, roomCode);
+                }
+            }
+        }
         
-        // NUEVO: Botón de descarga de archivo JSON
         document.getElementById('btn-download-json').addEventListener('click', () => {
             const json = window.generatedMazeJSON;
-            if (!json) {
-                alert('No hay JSON para descargar');
-                return;
-            }
-            
+            if (!json) { alert('No hay JSON para descargar'); return; }
             const jsonString = JSON.stringify(json, null, 2);
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.href = url;
             a.download = `laberinto_${Date.now()}.json`;
@@ -1278,13 +562,20 @@ async function generateJSON() {
             alert('✅ JSON copiado al portapapeles');
         });
         
+        document.getElementById('btn-back-to-game').addEventListener('click', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomCode = urlParams.get('room');
+            if (roomCode && window.gameUrl) {
+                window.location.href = `${window.gameUrl}?room=${roomCode}&returning=true`;
+            } else {
+                window.location.href = window.gameUrl || 'https://caanrique.github.io/labyrinth-lab/';
+            }
+        });
+        
         document.getElementById('btn-restart').addEventListener('click', () => {
             location.reload();
         });
         
-        // ============================================================
-        // INICIALIZACIÓN
-        // ============================================================
         const originalShowPage = showPage;
         showPage = function(pageNum) {
             originalShowPage(pageNum);
