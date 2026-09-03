@@ -141,7 +141,7 @@
             <div class="instructions">
                 <p><strong>¡Hola! 👋</strong> Vamos a convertir tu dibujo de laberinto en una aventura 3D multijugador.</p>
                 <div class="warning">
-                    <strong>⚠️ Un consejito importante:</strong>
+                    <strong>⚠️ Un consejo importante:</strong>
                     <ul style="margin-top: 10px; margin-left: 20px;">
                         <li>Procura que la hoja esté lo más limpia posible.</li>
                         <li>Evita borrones o manchas (¡el sistema los convertirá en paredes sorpresa!).</li>
@@ -303,7 +303,6 @@
             <textarea id="json-output" class="json-output" readonly></textarea>
             
             <div style="text-align: center; margin-top: 20px;">
-                <button id="btn-play-now" class="btn btn-play">🎮 ¡Crear sala y Jugar ahora!</button>
                 <button id="btn-download-json" class="btn btn-secondary">💾 Descargar Archivo JSON</button>
                 <button id="btn-restart" class="btn btn-back" style="margin-top: 10px;">🔄 Empezar de Nuevo</button>
             </div>
@@ -771,27 +770,7 @@
             goBack(6);
         });
 
-        document.getElementById('btn-play-now').addEventListener('click', async () => {
-            const json = window.generatedMazeJSON;
-            if (!json) return;
-            
-            const btn = document.getElementById('btn-play-now');
-            const originalText = btn.textContent;
-            btn.textContent = '⏳ Creando sala...';
-            btn.disabled = true;
-            
-            try {
-                generatedRoomCode = "LAB-" + Math.random().toString(36).substr(2, 4).toUpperCase();
-                await window.saveMazeToFirebase(json, generatedRoomCode);
-                
-                document.getElementById('final-room-code').textContent = generatedRoomCode;
-                goBack(7);
-            } catch (error) {
-                console.error('Error:', error);
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        });
+
 
         document.getElementById('btn-copy-final-code').addEventListener('click', () => {
             const code = document.getElementById('final-room-code').textContent;
